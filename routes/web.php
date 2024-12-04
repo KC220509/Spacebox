@@ -4,11 +4,13 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\Admin\AdminController;
 use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\WebRTCController;
 use Illuminate\Support\Facades\Route;
 
 
 // Liên kết tới trang chưa login
 Route::get('/', [HomeController::class, 'landingPage'])->name('spacebox.landingpage');
+// Route::post('/signal', [WebRTCController::class, 'signal'])->name('signal');
 
 
 
@@ -113,6 +115,10 @@ Route::group(['prefix' => 'spacebox', 'middleware' => 'check_user' ,'as' => 'spa
     Route::put('/updatePass', [AccountController::class, 'updatePass'])->name('updatePass');
 
     Route::patch('/chat/updateRoom', [HomeController::class, 'updateRoom'])->name('userUpdateRoom');
+
+
+    
+
 
 });
 

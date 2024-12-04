@@ -9,7 +9,7 @@ import './bootstrap';
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
 
-const roomId = document.getElementById('room_id').value;
+const roomId = document.getElementById('roomCurrent').value;
 if (roomId) {
     window.Echo.channel(`chat.${roomId}`).listen('.chat-event', (e) => {
         const userCurrent = document.getElementById('userCurrent').value;
@@ -33,8 +33,8 @@ if (roomId) {
                         ` : `
                             ${/\.(jpg|jpeg|png|gif)$/i.test(e.message.file_path) ? `
                                 <!-- Nếu là ảnh, sử dụng thẻ <img> để hiển thị -->
-                                <a href="${e.message.file_path}" target="_blank">
-                                    <img src="${e.message.file_path}" alt="Image" style="width: auto; max-height: 250px;" />
+                                <a href="${e.message.file_path}" target="_blank" class="file-mess-link">
+                                    <img src="${e.message.file_path}" alt="Image" style="max-width: 400px; max-height: 250px;" />
                                 </a>
                             ` : /\.(pdf)$/i.test(e.message.file_path) ? `
                                 <!-- Nếu là file PDF, sử dụng thẻ <a> để hiển thị -->

@@ -274,11 +274,14 @@
     margin-left: auto;
 }
 
-
+.call-Information{
+  align-items: center;
+  gap: 10px;
+}
 .call-Information a {
     color: #0f8fffeb;
     font-size: 25px;
-    margin: 0 5px;
+    /* margin: 0 5px; */
     line-height: 1;
     width: 40px; /* Cố định độ rộng */
     text-align: center; /* Canh giữa nội dung */
@@ -291,6 +294,15 @@
     transform: scale(1.05); /* Phóng to mà không thay đổi kích thước thực tế */
 }
 
+
+.call-Information .strarCall{
+  background: none;
+  cursor: pointer;
+}
+.call-Information .strarCall i{
+  color: #0f8fffeb;
+  font-size: 25px;
+}
 
 
 /* .message-ghim {
@@ -991,6 +1003,7 @@
 .btn-back_resources i{
     font-size: 22px;
     font-weight: bold;
+    cursor: pointer;
 }
 
 
@@ -1051,7 +1064,7 @@
 
 
 
-.media .header{
+.resources .header{
     display: flex;
     flex-direction: row;
     background-color: #f0f0f0;
@@ -1074,7 +1087,8 @@
 
   .media-content img{
     width: 100%; 
-    height: auto; 
+    height: 100%;
+    object-fit: cover; 
   }
 
 

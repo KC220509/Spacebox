@@ -67,7 +67,7 @@ class HomeController extends Controller
         // Lấy danh sách các phòng mà người dùng tham gia
         $rooms = $this->roomService->getDefaultRoom($user->user_id);
         //Lấy phòng có tin nhắn mới nhất
-        $roomFirst = $room_id ? $this->roomService->getRoomId($room_id) : $rooms->first();
+        $roomFirst = $rooms->contains('room_id', $room_id) ? $this->roomService->getRoomId($room_id) : $rooms->first();
         
 
         if($rooms != null){
@@ -87,13 +87,13 @@ class HomeController extends Controller
         }
 
         // Kiểm tra xem id phòng có tồn tại không
-        if ($room_id) {
+        if ($roomFirst) {
             // Lấy danh sách thành viên và quyền trong phòng
-            $userInRooms = $this->getUsersWithRolesInRoom($room_id);
+            $userInRooms = $this->getUsersWithRolesInRoom($roomFirst->room_id);
             // Sắp xếp theo quyền trong phòng chat
             $userInRooms = $userInRooms->sortBy('role_id');
             
-            $messages = $this->getMessagesInRoom($room_id);
+            $messages = $this->getMessagesInRoom($roomFirst->room_id);
 
             // Duyệt qua tin nhắn và kết hợp thông tin người gửi với tin nhắn
             foreach ($messages as $message) {
@@ -106,7 +106,7 @@ class HomeController extends Controller
             return view('home.chat', [
                 'user' => $user,
                 'roomFirst' => $roomFirst,
-                'room_id' => $room_id,
+                'room_id' => $roomFirst->room_id,
                 'listUsers'=> $listUsers, 
                 'rooms' => $rooms, 
                 'userInRooms' => $userInRooms, 
@@ -118,7 +118,7 @@ class HomeController extends Controller
         return view('home.chat', [
             'user' => $user,
             'roomFirst' => $roomFirst,
-            'room_id' => $room_id,
+            'room_id' => 0,
             'listUsers'=> $listUsers, 
             'rooms' => $rooms, 
             'userInRooms' => [], 
@@ -255,7 +255,7 @@ class HomeController extends Controller
                 $request['content'] = $file->getClientOriginalName();
                 $request['file_mess'] = $uploadedFile;
             } else {
-                return redirect()->back()->with('chat-error', 'Tải file không thành công');
+                return redirect()->back();
             }
         }
         $message = $this->messageService->createFileMessage($request);
@@ -264,10 +264,10 @@ class HomeController extends Controller
         if($message){
             $event = $this->eventSendMess($message);
             if($event){
-                return redirect()->back()->with('chat-success', 'Gửi file thành công');
+                return redirect()->back();
             }
         }
-        return redirect()->back()->with('chat-error', 'Gửi file không thành công');
+        return redirect()->back();
         // dd($message);
     }
     

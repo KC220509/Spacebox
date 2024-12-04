@@ -11,6 +11,7 @@
                 <div class="my_avt">
                     <input type="hidden" id="roleCurrent" value="{{ Auth::user()->role_id }}">
                     <input type="hidden" id="userCurrent" value="{{ Auth::user()->user_id }}">
+                    <input type="hidden" id="roomCurrent" value="{{ $room_id }}">
                     <img src="{{ Auth::user()->img_path }}" alt="">
                 </div>
                 <nav class="nav_menu">
@@ -209,7 +210,7 @@
         <!-- Chi tiết tin nhắn và người dùng -->
         <section class="chat-container">
             <header class="chat-header">
-                    @if($roomFirst)
+                @if($messages)
                     <div class="user-info">
                         
                         <img src="{{ $roomFirst->avt_path }}" alt="User Avatar" class="user-avatar">
@@ -218,22 +219,30 @@
                             <p class="status">Online</p>
                         </div>
                     </div>
-                    @if ($messages)
-                        <div class="call-Information">
-                            <a href="#"><i class='bx bxs-phone-call'></i></a>
-                            <a href="#"><i class='bx bxs-video'></i></a>
-                            <a href="#" id="toggleDirectory" ><i class='bx bxs-error-circle'></i></a>
-                        </div>         
-                    @endif  
-                    @else
-                        <p style="width: 100%;text-align: center;color: #ccc;">Không có phòng chat nào</p>
-                    @endif
-                </header>
+
+                    <div class="call-Information flex-row">
+                        <a href="#"><i class='bx bxs-phone-call'></i></a>
+                        <form id="videoCallForm" class="formCall" action="#" method="POST">
+                            @csrf
+                            <input type="hidden" id="idRoomCall" name="room_id" value="{{ $room_id }}">
+                            <video id="localVideo" style="display: none;"  autoplay playsinline muted></video>
+                            <video id="remoteVideo" style="display: none;"  autoplay playsinline></video>
+                            <button id="startCall" class="strarCall" type="button" >
+                                <i class='bx bxs-video'></i>
+                            </button>
+                        </form> 
+                        <a href="#" id="toggleDirectory" ><i class='bx bxs-error-circle'></i></a>
+                    </div>
+                        
+                @else
+                    <p style="width: 100%;text-align: center;color: #ccc;">Không có phòng chat nào</p>
+                @endif
+            </header>
             
 
             
 
-            @if ($messages)
+        @if ($messages)
             <div class="chat-content">
                 <div class="box-mess-ghim">
                     @php
@@ -274,8 +283,8 @@
                                     @else
                                         @if(preg_match('/\.(jpg|jpeg|png|gif)$/i', $message->file_path))
                                             <!-- Nếu là ảnh, sử dụng thẻ <img> để hiển thị -->
-                                            <a href="{{ $message->file_path }}" target="_blank">
-                                                <img src="{{ $message->file_path }}" alt="Image" style="width: auto; max-height: 250px;" />
+                                            <a href="{{ $message->file_path }}" target="_blank" class="file-mess-link">
+                                                <img src="{{ $message->file_path }}" alt="Image" style="max-width: 400px; max-height: 250px;" />
                                             </a>
                                         @elseif(preg_match('/\.(pdf)$/i', $message->file_path))
                                             <!-- Nếu là ảnh, sử dụng thẻ <img> để hiển thị -->
@@ -384,9 +393,11 @@
                    
             </footer>
             
+        @endif
         </section>
 
         <!-- Directory bên phải -->
+        @if ($roomFirst)
         <aside class="directory" id="directory">
             <div class="community-details">
                     <!-- <h1>Thông tin nhóm</h1> -->
@@ -503,19 +514,17 @@
                         <button class="btn_resources" id="btm_link">Link</button>
                     </div>
                     <div class="container-media">
-                        <div class="media-content">
-                            <img src="{{ url('assets/images/male.png') }}" alt="">
-                        </div>
-                        <div class="media-content">
-                            <img src="{{ url('assets/images/male.png') }}" alt="">
-                        </div>
-                        <div class="media-content">
-                            <img src="{{ url('assets/images/male.png') }}" alt="">
-                        </div>
-                        <div class="media-content">
-                            <img src="{{ url('assets/images/male.png') }}" alt="">
-                        </div>
+                        @foreach ($messages as $message)
+                            @if ($message->room_id == $roomFirst->room_id)
+                                @if(preg_match('/\.(jpg|jpeg|png|gif)$/i', $message->file_path))
+                                    <!-- Nếu là ảnh, sử dụng thẻ <img> để hiển thị -->
+                                    <div class="media-content">
+                                        <img src="{{ $message->file_path }}" alt="">
+                                    </div>
+                                @endif
+                            @endif
                         
+                        @endforeach
                     </div>
                     
                 </div>
@@ -527,10 +536,20 @@
                         <button class="btn_resources" id="btf_link">Link</button>
                     </div>
                     <div class="container-file">
-                        <div class="file-content">
-                            <img src="{{ url('assets/images/male.png') }}" alt="">
-
-                        </div>
+                        @foreach ($messages as $message)
+                            @if ($message->room_id == $roomFirst->room_id)
+                                @if(!preg_match('/\.(jpg|jpeg|png|gif|bmp|webp)$/i', $message->file_path)  && $message->file_path)
+                                    <!-- Nếu là ảnh, sử dụng thẻ <img> để hiển thị -->
+                                    <div class="file-content">
+                                        <a href="{{ $message->file_path }}" download="{{ $message->content }}" class="file-mess-link" target="_blank">
+                                            <i class='bx bx-file'></i>
+                                            <p>{{ $message->content }}</p>
+                                        </a>
+                                    </div>
+                                @endif
+                            @endif
+                        
+                        @endforeach
                     </div>
                     <!-- Nội dung File ở đây -->
                 </div>
@@ -541,7 +560,7 @@
                         <button class="btn_resources" id="btl_file">File</button>
                         <button class="btn_resources" id="btl_link">Link</button>
                     </div>
-                    <p>llllllllllll</p>
+                    <p></p>
                     <!-- Nội dung File ở đây -->
                 </div>
 
@@ -593,7 +612,6 @@
     const roleCurrentPage = document.getElementById('roleCurrent').value;
     if(roleCurrentPage != 1){
         document.getElementById('btn-setting').addEventListener('click', function() {
-        // event.preventDefault(); 
 
         const optionSetting = document.getElementById('option-setting');
         
@@ -688,25 +706,28 @@
 
    
 
+    const roomCurrent = document.getElementById('roomCurrent').value;
+    if(roomCurrent != 0){
+        
+    
+        // PLUS
+        document.getElementById('btn_plus').addEventListener('click', function () {
+            const record = document.getElementById('record');
+            record.classList.toggle('show');
+            event.stopPropagation();
+        });
 
-    // PLUS
-    document.getElementById('btn_plus').addEventListener('click', function () {
+
+        document.addEventListener('click', function () {
         const record = document.getElementById('record');
-        record.classList.toggle('show');
-        event.stopPropagation();
-    });
-
-
-    document.addEventListener('click', function () {
-    const record = document.getElementById('record');
-    if (record.classList.contains('show')) {
-        record.classList.remove('show');
+        if (record.classList.contains('show')) {
+            record.classList.remove('show');
+        }
+        });
+        document.getElementById('record').addEventListener('click', function () {
+            alert('record đã được chọn!');
+        });
     }
-    });
-    document.getElementById('record').addEventListener('click', function () {
-        alert('record đã được chọn!');
-    });
-
     
     function handleFileChange(event) {
         const file = event.target.files[0]; // Lấy file đầu tiên

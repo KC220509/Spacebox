@@ -6,7 +6,7 @@ window.Echo.channel(`room`).listen('.index-room', (event) => {
     const roomBox = document.getElementById('room-list');
 
     const userCurrent = document.getElementById('userCurrent').value;
-    const roomCurrent = document.getElementById('room_id'); 
+    const roomCurrent = document.getElementById('roomCurrent'); 
 
     const roomList = document.querySelectorAll('.chat-item'); // Lấy tất cả phòng với class
     const roomId = event.room.room_id;
