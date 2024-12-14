@@ -111,10 +111,7 @@ class RoomService
         // Lấy danh sách các phòng mà user tham gia
         $rooms = $this->getListRoomUser($user_id);
 
-        // Nếu không có phòng nào, trả về null
-        // if ($rooms->isEmpty()) {
-        //     return null;
-        // }
+       
         if($rooms == null){
             $rooms = new Room();
             $rooms->room_id = 0;
@@ -136,10 +133,42 @@ class RoomService
         // Lấy tất cả các role_id của user trong phòng
         $rolesInRoom = $this->roomRole->where('room_id', $room_id)
                                       ->where('user_id', $user_id)
-                                      ->pluck('role_id');   // Lấy tất cả các role_id
+                                      ->pluck('role_id');   
     
         return $rolesInRoom;
     }
     
+    public function getRoomRoleId($user_id,$room_id){
+        $idRoomRole = $this->roomRole->where('room_id', $room_id)
+                                    ->where('user_id', $user_id)
+                                    ->pluck('room_role_id')
+                                    ->first();
+        return $idRoomRole;
+    }
+    
+    public function removeRoomRole($user_id, $room_id){
 
+        $idRoomRole = $this->getRoomRoleId($user_id,$room_id);
+        $roomRole = $this->roomRole->find($idRoomRole);
+        
+        $roleOut = $this->getRoleInRoom($room_id, $user_id);
+        // dd($roleOut);
+        if($roleOut[0] == 2){
+            $firstUser = $this->roomRole->where('room_id', $room_id)->where('user_id', '!=', $user_id)->first();
+            
+            $room = $this->room->where('room_id', $room_id)->first();
+            $room->created_by = $firstUser->user_id;
+            $room->save();
+
+            $firstUser->role_id = 2;
+            $firstUser->save();
+        }
+
+        $roomDeleted = $roomRole->delete();
+
+        if($roomDeleted){
+            return true;
+        }
+        return false;
+    }
 }

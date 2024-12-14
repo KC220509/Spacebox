@@ -265,7 +265,11 @@
                     @foreach ($messages as $message)
                         
                         <div class="message {{ $message->is_current_user ? 'user' : 'friend' }}">
-                            <img src="{{ $message->is_current_user ? Auth::user()->img_path : $message->img_path }}" alt="Avatar" class="avatar">
+                            @if($message->img_path)
+                                <img src="{{ $message->is_current_user ? Auth::user()->img_path : $message->img_path }}" alt="Avatar" class="avatar">
+                            @else
+                                <img src="https://res.cloudinary.com/dy6y1gpgm/image/upload/v1731680383/male_q2q91r.png" alt="Avatar" class="avatar">
+                            @endif
 
                             <div class="name_bubble">
                                 @if (!$message->is_current_user)
@@ -416,10 +420,15 @@
                             <span>Im lặng</span>
                         </button>
 
-                        <button class="action-btn">
-                            <i class='bx bx-log-in' ></i>
-                            <span>Rời nhóm</span>
-                        </button>
+                        <form action="{{  Auth::user()->role_id == 1 ? route('admin.chat.outroom', $roomFirst->room_id) : route('spacebox.chat.outroom', $roomFirst->room_id) }}" method="post" style="display: inline;">
+                            @csrf
+                            @METHOD('DELETE')
+                            <button type="submit" class="action-btn">
+                                <i class='bx bx-log-in'></i>
+                                <span>Rời nhóm</span>
+                            </button>
+                        </form>
+
                         <div class="setting_room">
                             @if ($roomFirst->created_by == Auth::user()->user_id) 
                                 <button class="action-btn" id="action-btn-room">
@@ -478,7 +487,7 @@
                         <a></a>
                         <ul class="members-list">
                             @foreach ($userInRooms as $userInRoom)
-                                <li class="member">
+                                <li class="member" id="user-{{ $userInRoom->user_id }}">
                                     <div class="member-right">
                                         <img src="{{ $userInRoom->img_path }}" alt="User 1" class="member-avatar">
                                         <div class="member-info">
@@ -576,6 +585,7 @@
 
 @vite('resources/js/chat.js')
 @vite('resources/js/room.js')
+@Vite('resources/js/outroom.js')
 
 
 

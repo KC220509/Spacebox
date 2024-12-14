@@ -91,6 +91,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'check_admin' ,'as' => 'admin
 
     
     Route::patch('/chat/updateRoom', [HomeController::class, 'updateRoom'])->name('userUpdateRoom');
+
+    Route::delete('/outroom/{room_id}', [HomeController::class, 'outroom'])->name('chat.outroom');
 });
 
 
@@ -118,6 +120,7 @@ Route::group(['prefix' => 'spacebox', 'middleware' => 'check_user' ,'as' => 'spa
 
 
     
+    Route::delete('/outroom/{room_id}', [HomeController::class, 'outroom'])->name('chat.outroom');
 
 
 });

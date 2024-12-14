@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Events\AddUserRoom;
 use App\Events\ChatEvent;
 use App\Events\IndexRoomEvent;
+use App\Events\OutUserRoom;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Account\AddRoomRequest;
 use App\Http\Requests\Web\Account\SendFileRequest;
@@ -345,6 +346,23 @@ class HomeController extends Controller
         $room->save();
 
         return redirect()->back();
+
+    }
+
+
+    public function outRoom($room_id){
+        $userId = Auth::id(); 
+        
+        $outRoom = $this->roomService->removeRoomRole($userId,$room_id);
+
+        if($outRoom){
+            broadcast(new OutUserRoom($userId, $room_id));
+                
+            return redirect()->back();
+        }
+
+        return redirect()->back();
+
 
     }
 }
